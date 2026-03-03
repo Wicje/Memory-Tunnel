@@ -1,4 +1,4 @@
-import React, { useRef, useLayoutEffect, useEffect } from 'react';
+import React, { useRef, useLayoutEffect, useEffect, useState } from 'react';
 import gsap from 'gsap';
 import * as THREE from 'three';
 
@@ -22,6 +22,7 @@ const Hero: React.FC<HeroProps> = ({ isDarkMode }) => {
   const mouseRef = useRef(new THREE.Vector2());
   const textureLoaderRef = useRef(new THREE.TextureLoader());
   const texturePoolRef = useRef<THREE.Texture[]>([]);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const baseMaterialRef = useRef(
     new THREE.MeshBasicMaterial({
       transparent: true,
@@ -181,6 +182,7 @@ const imageUrls = [
 
         const m = new THREE.Mesh(geom, mat);
          m.name = "slab_image";
+         m.userData = { imageUrl: url };
          group.add(m);
          m.position.copy(pos);
          m.rotation.copy(rot);
@@ -364,10 +366,10 @@ const onScroll = () => {
     window.addEventListener('resize', handleResize);
 
     //Raycaster 
-    const handleClick = (event: MouseEvent) => {
-  if (!cameraRef.current || !sceneRef.current) return;
+const handleClick = (event: MouseEvent) => {
+  if (!cameraRef.current || !sceneRef.current || !canvasRef.current) return;
 
-  const rect = canvasRef.current!.getBoundingClientRect();
+  const rect = canvasRef.current.getBoundingClientRect();
 
   mouseRef.current.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
   mouseRef.current.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
@@ -378,17 +380,9 @@ const onScroll = () => {
 
   if (intersects.length > 0) {
     const object = intersects[0].object;
-
     if (object.name === "slab_image") {
-      console.log("Clicked image:", object);
-
-      gsap.to(object.scale, {
-        x: 1.2,
-        y: 1.2,
-        duration: 0.3,
-        yoyo: true,
-        repeat: 1
-      });
+      const url = object.userData.imageUrl as string;
+      setSelectedImage(url);
     }
   }
 };
@@ -466,6 +460,27 @@ canvasRef.current.addEventListener("click", handleClick);
 
           <div className="flex items-center gap-6">
           </div>
+        {/* Image Modal */}
+{selectedImage && (
+  <div
+    className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md"
+    onClick={() => setSelectedImage(null)}
+  >
+    <div className="relative max-w-[90vw] max-h-[90vh]" onClick={(e) => e.stopPropagation()}>
+      <img
+        src={selectedImage}
+        alt="Full size"
+        className="w-auto h-auto max-w-full max-h-[90vh] object-contain"
+      />
+      <button
+        onClick={() => setSelectedImage(null)}
+        className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/20 text-white hover:bg-white/40 flex items-center justify-center text-2xl"
+      >
+        ✕
+      </button>
+    </div>
+  </div>
+)}{/*this is where it ends */}
         </div>
       </div>
     </div>
