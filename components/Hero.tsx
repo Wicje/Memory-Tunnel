@@ -439,16 +439,10 @@ canvasRef.current.addEventListener("click", handleClick);
           </h1>
           
           <p className={`text-lg md:text-xl font-normal max-w-lg leading-relaxed mb-10 transition-colors duration-500 ${isDarkMode ? 'text-gray-400' : 'text-muted'}`}>
-            Build the digital version of you to scale your expertise and availability, <span className="text-accent font-medium">infinitely</span>
+            See the digital version of me to know my expertise and availability, <span className="text-accent font-medium">infinitely</span>
           </p>
 
           <div className="flex items-center gap-6">
-            <button className={`rounded-full px-8 py-3.5 text-sm font-medium hover:scale-105 transition-all duration-300 ${isDarkMode ? 'bg-white text-black hover:bg-gray-200' : 'bg-dark text-white'}`}>
-              Try now
-            </button>
-            <button className={`text-sm font-medium hover:opacity-70 transition-opacity flex items-center gap-1 ${isDarkMode ? 'text-white' : 'text-dark'}`}>
-              See examples <span>→</span>
-            </button>
           </div>
         </div>
       </div>
