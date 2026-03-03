@@ -463,7 +463,9 @@ canvasRef.current.addEventListener("click", handleClick);
 
           <div className="flex items-center gap-6">
           </div>
-        {/* Image Modal */}
+        </div>
+      </div>
+              {/* Image Modal */}
 {selectedImage && (
   <div
     className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md"
@@ -484,8 +486,7 @@ canvasRef.current.addEventListener("click", handleClick);
     </div>
   </div>
 )}{/*this is where it ends */}
-        </div>
-      </div>
+
     </div>
   );
 };
