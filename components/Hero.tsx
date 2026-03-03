@@ -299,14 +299,17 @@ const imageUrls = [
             // Re-populate
             const toRemove: THREE.Object3D[] = [];
             segment.traverse((c) => { if (c.name === 'slab_image') toRemove.push(c); });
-            toRemove.forEach(c => {
-                segment.remove(c);
-                if (c instanceof THREE.Mesh) {
-                    c.geometry.dispose(); 
-//                    if (c.material.map) c.material.map.dispose();
-                    c.material.dispose();
-                }
-            });
+toRemove.forEach(c => {
+  segment.remove(c);
+
+  if (c instanceof THREE.Mesh) {
+    c.geometry.dispose();
+    c.material.dispose();
+
+    clickableMeshesRef.current =
+      clickableMeshesRef.current.filter(m => m !== c);
+  }
+});
             const w = TUNNEL_WIDTH / 2; const h = TUNNEL_HEIGHT / 2; const d = SEGMENT_DEPTH;
             populateImages(segment, w, h, d);
         }
@@ -324,7 +327,7 @@ const imageUrls = [
                 segment.remove(c);
                 if (c instanceof THREE.Mesh) {
                     c.geometry.dispose(); 
-                    if (c.material.map) c.material.map.dispose();
+                  //  if (c.material.map) c.material.map.dispose();
                     c.material.dispose();
                 }
             });
