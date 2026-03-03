@@ -182,6 +182,8 @@ const imageUrls = [
         const m = new THREE.Mesh(geom, mat);
          m.name = "slab_image";
          group.add(m);
+         m.position.copy(pos);
+         m.rotation.copy(rot);
          clickableMeshesRef.current.push(m); // <- HERE
         };
     // Logic: Iterate slots, but skip if the previous slot was filled.
@@ -257,8 +259,11 @@ const imageUrls = [
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     rendererRef.current = renderer;
 
+
+
     // Generate segments
-    const segments: THREE.Group[] = [];
+      const segments: THREE.Group[] = [];
+
     for (let i = 0; i < NUM_SEGMENTS; i++) {
       const z = -i * SEGMENT_DEPTH;
       const segment = createSegment(z);
@@ -296,7 +301,7 @@ const imageUrls = [
                 segment.remove(c);
                 if (c instanceof THREE.Mesh) {
                     c.geometry.dispose(); 
-                    if (c.material.map) c.material.map.dispose();
+//                    if (c.material.map) c.material.map.dispose();
                     c.material.dispose();
                 }
             });
@@ -330,7 +335,24 @@ const imageUrls = [
     };
     animate();
 
-    const onScroll = () => { scrollPosRef.current = window.scrollY; };
+const onScroll = () => {
+  const scrollY = window.scrollY;
+  scrollPosRef.current = scrollY;
+
+  // Fade out the text content based on scroll
+  if (contentRef.current) {
+    const fadeStart = 0;      // Start fading immediately
+    const fadeEnd = 500;      // Fully faded after 500px of scrolling
+    let opacity = 1 - (scrollY - fadeStart) / (fadeEnd - fadeStart);
+    opacity = Math.max(0, Math.min(1, opacity)); // Clamp between 0 and 1
+
+    contentRef.current.style.opacity = opacity.toString();
+
+    // Disable pointer events when text is nearly invisible to avoid accidental clicks
+    contentRef.current.style.pointerEvents = opacity < 0.1 ? 'none' : 'auto';
+  }
+};
+
     window.addEventListener('scroll', onScroll);
     const handleResize = () => {
       const w = window.innerWidth;
