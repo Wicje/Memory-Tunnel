@@ -183,7 +183,7 @@ const imageUrls = [
          m.name = "slab_image";
          group.add(m);
          clickableMeshesRef.current.push(m); // <- HERE
-
+        };
     // Logic: Iterate slots, but skip if the previous slot was filled.
     // Threshold adjusted to 0.80 (20%) to compensate for skipped slots and maintain density.
 
