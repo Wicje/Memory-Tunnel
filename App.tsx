@@ -27,7 +27,7 @@ const App: React.FC = () => {
       
       {/* Footer fixed at bottom right or hidden for infinite feel */}
       <footer className={`fixed bottom-4 right-6 text-[10px] pointer-events-none z-50 transition-colors duration-500 ${isDarkMode ? 'text-white/30' : 'text-black/30'}`}>
-        <p>&copy; {new Date().getFullYear()} Delphi Clone.</p>
+        <p>&copy; {new Date().getFullYear()} Made By ArchJosephan thanks to bugged dev.</p>
       </footer>
     </div>
   );
