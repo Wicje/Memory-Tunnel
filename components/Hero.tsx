@@ -10,7 +10,8 @@ const Hero: React.FC<HeroProps> = ({ isDarkMode }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
-  
+  const [texturesLoaded, setTexturesLoaded] = useState(false);
+
   // Store refs for cleanup and animation
   const sceneRef = useRef<THREE.Scene | null>(null);
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
@@ -20,8 +21,8 @@ const Hero: React.FC<HeroProps> = ({ isDarkMode }) => {
   const raycasterRef = useRef(new THREE.Raycaster());
   const clickableMeshesRef = useRef<THREE.Mesh[]>([]);
   const mouseRef = useRef(new THREE.Vector2());
+  const textureMapRef = useRef<Map<string, THREE.Texture>>(new Map()); // This refernces each URL with its loaded texture.
   const textureLoaderRef = useRef(new THREE.TextureLoader());
-  const texturePoolRef = useRef<THREE.Texture[]>([]);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const baseMaterialRef = useRef(
     new THREE.MeshBasicMaterial({
@@ -35,11 +36,16 @@ const Hero: React.FC<HeroProps> = ({ isDarkMode }) => {
 
   useEffect(() => {
     const loader = textureLoaderRef.current;
+    let loadedCount = 0;
     imageUrls.forEach((url) => {
       loader.load(url, (tex) => {
         tex.minFilter = THREE.LinearFilter;
         tex.generateMipmaps = false;
-        texturePoolRef.current.push(tex);
+        textureMapRef.current.set(url, tex);
+        loadedCount++;
+        if (loadedCount === imageUrls.length) {
+          setTexturesLoaded(true);
+        }
       });
     });
   }, []);
@@ -173,9 +179,8 @@ const imageUrls = [
         const url = imageUrls[Math.floor(Math.random() * imageUrls.length)];
         const geom = new THREE.PlaneGeometry(wd - cellMargin, ht - cellMargin);
         const mat = baseMaterialRef.current.clone();
-        const textures = texturePoolRef.current;
-        const tex = textures[Math.floor(Math.random() * textures.length)];
-        if (!textures.length) return;
+        const tex = textureMapRef.current.get(url);
+        if (!tex) return; // texture not yet loaded – skip this image
         mat.map = tex;
         mat.needsUpdate = true;
         gsap.fromTo(mat, { opacity: 0 }, { opacity: 0.85, duration: 1 });
@@ -239,7 +244,7 @@ const imageUrls = [
 
   // --- INITIAL SETUP ---
   useEffect(() => {
-    if (!canvasRef.current || !containerRef.current) return;
+    if (!canvasRef.current || !containerRef.current || !texturesLoaded) return;
 
     // THREE JS SETUP
     const scene = new THREE.Scene();
@@ -329,6 +334,7 @@ toRemove.forEach(c => {
                     c.geometry.dispose(); 
                   //  if (c.material.map) c.material.map.dispose();
                     c.material.dispose();
+                    clickableMeshesRef.current = clickableMeshesRef.current.filter(m => m !== c);
                 }
             });
             const w = TUNNEL_WIDTH / 2; const h = TUNNEL_HEIGHT / 2; const d = SEGMENT_DEPTH;
@@ -399,7 +405,7 @@ canvasRef.current.addEventListener("click", handleClick);
       cancelAnimationFrame(frameId);
       renderer.dispose();
     };
-  }, []); // Run once on mount
+  }, [texturesLoaded]); // Run once on mount
 
   // --- THEME UPDATE EFFECT ---
   useEffect(() => {
